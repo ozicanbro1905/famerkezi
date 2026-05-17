@@ -4,10 +4,10 @@
  */
 
 import { useState, useEffect } from 'react';
-import { Trash2, LogIn, LogOut } from 'lucide-react';
+import { Trash2, LogIn, LogOut, Pencil } from 'lucide-react';
 import { auth, db } from './firebase';
 import { signInWithEmailAndPassword, signOut, onAuthStateChanged, User } from "firebase/auth";
-import { collection, onSnapshot, query, orderBy, addDoc, deleteDoc, doc } from 'firebase/firestore';
+import { collection, onSnapshot, query, orderBy, addDoc, deleteDoc, doc, updateDoc } from 'firebase/firestore';
 
 type MatchUpdate = {
   id: string;
@@ -23,6 +23,8 @@ export default function App() {
   const [user, setUser] = useState<User | null>(null);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+
+  const [editId, setEditId] = useState<string | null>(null);
 
   useEffect(() => {
     onAuthStateChanged(auth, (currentUser) => setUser(currentUser));
@@ -49,8 +51,30 @@ export default function App() {
     }
   };
 
+  const handleUpdate = async () => {
+    if (!editId || inputText.trim() === '' || !user) return;
+
+    await updateDoc(doc(db, "updates", editId), {
+      text: inputText
+    });
+
+    setEditId(null);
+    setInputText('');
+  };
+
   const handleSave = async () => {
     if (inputText.trim() === '' || !user) return;
+
+    // 🔥 EDIT MODE
+    if (editId) {
+      await updateDoc(doc(db, "updates", editId), {
+        text: inputText
+      });
+
+      setEditId(null);
+      setInputText('');
+      return;
+    }
 
     let tag: string | undefined;
     let cleanText = inputText;
@@ -135,11 +159,6 @@ export default function App() {
       <main className="space-y-8 w-full">
         {user && (
           <div className="w-full bg-neutral-900 p-4 rounded-lg flex gap-3 items-center">
-            <div className="flex flex-col gap-2">
-              <button onClick={() => setInputText((p) => p + '🟨')} className="text-2xl hover:bg-neutral-800 p-1 rounded">🟨</button>
-              <button onClick={() => setInputText((p) => p + '🟥')} className="text-2xl hover:bg-neutral-800 p-1 rounded">🟥</button>
-            </div>
-
             <textarea
               value={inputText}
               onChange={(e) => setInputText(e.target.value)}
@@ -149,10 +168,10 @@ export default function App() {
             />
 
             <button
-              onClick={handleSave}
+              onClick={editId ? handleUpdate : handleSave}
               className="bg-white text-black px-6 py-3 rounded text-base font-bold self-start hover:bg-neutral-200"
             >
-              Kaydet
+              {editId ? 'Güncelle' : 'Kaydet'}
             </button>
           </div>
         )}
@@ -171,28 +190,39 @@ export default function App() {
                 <div className="flex-1">
                   <p className="text-lg break-words">
                     {update.tag && (
-                      {/* Simetri için buraya "w-40" sınıfı eklendi */ }
-                      < span className={`inline-block w-40 mr-3 px-3 py-1 rounded text-sm font-bold uppercase text-center ${getTagColor(update.tag)}`}>
-                    {update.tag}
-                  </span>
+                      <span className={`inline-block w-40 mr-3 px-3 py-1 rounded text-sm font-bold uppercase text-center ${getTagColor(update.tag)}`}>
+                        {update.tag}
+                      </span>
                     )}
-                  {update.text}
-                </p>
+                    {update.text}
+                  </p>
+                </div>
               </div>
-            </div>
 
-              { user && (
-              <button
-                onClick={() => deleteDoc(doc(db, "updates", update.id))}
-                className="text-neutral-500 hover:text-red-500 p-2"
-              >
-                <Trash2 size={20} />
-              </button>
-            )}
-        </div>
+              {user && (
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => {
+                      setEditId(update.id);
+                      setInputText(update.text);
+                    }}
+                    className="text-neutral-500 hover:text-yellow-400 p-2"
+                  >
+                    <Pencil size={20} />
+                  </button>
+
+                  <button
+                    onClick={() => deleteDoc(doc(db, "updates", update.id))}
+                    className="text-neutral-500 hover:text-red-500 p-2"
+                  >
+                    <Trash2 size={20} />
+                  </button>
+                </div>
+              )}
+            </div>
           ))}
-      </section>
-    </main>
-    </div >
+        </section>
+      </main>
+    </div>
   );
 }
