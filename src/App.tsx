@@ -5,24 +5,36 @@
 
 import { useState, useEffect } from 'react';
 import { Trash2 } from 'lucide-react';
+// Firebase bağlantılarını içe aktar (firebase.ts dosyanın yolunu doğru verdiğinden emin ol)
+import { db } from './firebase';
+import { collection, onSnapshot, query, orderBy, addDoc, deleteDoc, doc } from 'firebase/firestore';
 
 type MatchUpdate = {
-  id: number;
+  id: string; // Firestore doküman ID'leri string olduğu için string'e çevirdik
   text: string;
   timestamp: string;
   tag?: string;
+  createdAt: number; // Sıralama için
 };
 
 export default function App() {
-  const [updates, setUpdates] = useState<MatchUpdate[]>(() => {
-    const saved = localStorage.getItem('matchUpdates');
-    return saved ? JSON.parse(saved) : [];
-  });
+  const [updates, setUpdates] = useState<MatchUpdate[]>([]);
   const [inputText, setInputText] = useState('');
 
+  // 1. Verileri Firestore'dan anlık çek (Realtime)
   useEffect(() => {
-    localStorage.setItem('matchUpdates', JSON.stringify(updates));
-  }, [updates]);
+    const q = query(collection(db, "updates"), orderBy("createdAt", "desc"));
+
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const data = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      } as MatchUpdate));
+      setUpdates(data);
+    });
+
+    return () => unsubscribe();
+  }, []);
 
   const getTagColor = (tag: string) => {
     switch (tag) {
@@ -38,7 +50,8 @@ export default function App() {
     }
   };
 
-  const handleSave = () => {
+  // 2. Veri Kaydetme (Firestore'a ekle)
+  const handleSave = async () => {
     if (inputText.trim() === '') return;
 
     let tag: string | undefined;
@@ -63,26 +76,31 @@ export default function App() {
         tag = trigger.tag;
         if (trigger.remove) {
           cleanText = inputText.replace(trigger.phrase, '').trim();
-        } else {
-          cleanText = inputText;
         }
         break;
       }
     }
 
-    const newUpdate: MatchUpdate = {
-      id: Date.now(),
-      text: cleanText,
-      timestamp: new Date().toLocaleString('tr-TR'),
-      tag,
-    };
-
-    setUpdates([newUpdate, ...updates]);
-    setInputText('');
+    try {
+      await addDoc(collection(db, "updates"), {
+        text: cleanText,
+        timestamp: new Date().toLocaleString('tr-TR'),
+        tag: tag || null,
+        createdAt: Date.now()
+      });
+      setInputText('');
+    } catch (error) {
+      console.error("Hata oluştu:", error);
+    }
   };
 
-  const handleDelete = (id: number) => {
-    setUpdates(updates.filter((update) => update.id !== id));
+  // 3. Veri Silme (Firestore'dan sil)
+  const handleDelete = async (id: string) => {
+    try {
+      await deleteDoc(doc(db, "updates", id));
+    } catch (error) {
+      console.error("Silme hatası:", error);
+    }
   };
 
   return (
@@ -98,11 +116,7 @@ export default function App() {
           <textarea
             value={inputText}
             onChange={(e) => setInputText(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.ctrlKey && e.key === 'Enter') {
-                handleSave();
-              }
-            }}
+            onKeyDown={(e) => { if (e.ctrlKey && e.key === 'Enter') handleSave(); }}
             placeholder="Maçtan önemli bir anı yazın..."
             className="flex-grow bg-neutral-950 border border-neutral-800 rounded px-3 py-2 text-sm focus:ring-1 focus:ring-neutral-600 outline-none resize-none h-20"
           />
@@ -124,8 +138,7 @@ export default function App() {
                 className="bg-neutral-900 border-l-4 border-neutral-600 p-4 rounded-r-lg flex items-start justify-between gap-4 animate-in fade-in slide-in-from-left-2 duration-300"
               >
                 <div className="flex items-start gap-4">
-                  <span className="font-mono text-xs text-neutral-400 mt-0.5 whitespace-nowrap w-40">
-                    [{update.timestamp}]
+                  <span className="font-mono text-xs text-neutral-400 mt-0.5 whitespace-nowrap w-40">[{update.timestamp}]
                   </span>
                   <p className="text-sm leading-relaxed whitespace-pre-wrap">
                     {update.tag && (
