@@ -163,12 +163,12 @@ export default function App() {
               key={update.id}
               className="bg-neutral-900 border-l-4 border-neutral-700 p-4 rounded-r-lg flex justify-between items-start gap-4"
             >
-              <div className="flex items-start gap-3">
+              <div className="flex items-start gap-3 w-full">
                 <span className="text-xs text-neutral-500 font-mono mt-1 w-28 text-right">
                   [{update.timestamp}]
                 </span>
 
-                <p className="text-sm">
+                <p className="text-sm w-full break-words">
                   {update.tag && (
                     <span className={`inline-block mr-2 px-2 py-0.5 rounded text-[10px] font-bold uppercase w-32 text-center ${getTagColor(update.tag)}`}>
                       {update.tag}
