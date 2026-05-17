@@ -4,7 +4,7 @@
  */
 
 import { useState, useEffect } from 'react';
-import { Trash2, LogIn, LogOut, Pencil } from 'lucide-react';
+import { Trash2, LogIn, LogOut, Pencil, List } from 'lucide-react';
 import { auth, db } from './firebase';
 import { signInWithEmailAndPassword, signOut, onAuthStateChanged, User } from "firebase/auth";
 import { collection, onSnapshot, query, orderBy, addDoc, deleteDoc, doc, updateDoc } from 'firebase/firestore';
@@ -23,15 +23,21 @@ export default function App() {
   const [user, setUser] = useState<User | null>(null);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-
   const [editId, setEditId] = useState<string | null>(null);
+
+  // 🔥 YENİ SAYFA STATE
+  const [activePage, setActivePage] = useState<'live' | 'lists'>('live');
 
   useEffect(() => {
     onAuthStateChanged(auth, (currentUser) => setUser(currentUser));
 
     const q = query(collection(db, "updates"), orderBy("createdAt", "desc"));
+
     const unsubscribe = onSnapshot(q, (snapshot) => {
-      setUpdates(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as MatchUpdate)));
+      setUpdates(snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      } as MatchUpdate)));
     });
 
     return () => unsubscribe();
@@ -48,7 +54,7 @@ export default function App() {
       case 'MAÇ SONUCU': return 'bg-purple-950/50 text-purple-300 border-purple-900';
       case 'KIRMIZI KART': return 'bg-red-950/50 text-red-300 border-red-900';
       case 'PENALTI KAÇTI': return 'bg-orange-950/50 text-orange-300 border-orange-900';
-      case 'SON DAKİKA': return 'bg-black-950/50 text-white-300 border-gray-900';
+      case 'SON DAKİKA': return 'bg-black-950/50 text-white border-gray-900';
       case 'DURDURULDU': return 'bg-black-950/50 text-cyan-300 border-gray-900';
       default: return 'bg-neutral-800 text-neutral-300 border-neutral-700';
     }
@@ -68,7 +74,6 @@ export default function App() {
   const handleSave = async () => {
     if (inputText.trim() === '' || !user) return;
 
-    // 🔥 EDIT MODE
     if (editId) {
       await updateDoc(doc(db, "updates", editId), {
         text: inputText
@@ -102,7 +107,11 @@ export default function App() {
     for (const trigger of triggers) {
       if (inputText.includes(trigger.phrase)) {
         tag = trigger.tag;
-        if (trigger.remove) cleanText = inputText.replace(trigger.phrase, '').trim();
+
+        if (trigger.remove) {
+          cleanText = inputText.replace(trigger.phrase, '').trim();
+        }
+
         break;
       }
     }
@@ -128,15 +137,32 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-black text-white p-4 font-sans">
+
+      {/* HEADER */}
       <header className="flex justify-between items-center mb-8 w-full">
-        <h1 className="text-3xl font-bold">Canlı Maç Anlatımı</h1>
+
+        <div className="flex items-center gap-4">
+          <h1 className="text-3xl font-bold">Canlı Maç Anlatımı</h1>
+
+          {/* 🔥 LİSTELER BUTONU */}
+          <button
+            onClick={() =>
+              setActivePage(activePage === 'live' ? 'lists' : 'live')
+            }
+            className="bg-neutral-800 hover:bg-neutral-700 px-4 py-2 rounded flex items-center gap-2 text-sm font-bold"
+          >
+            <List size={18} />
+            {activePage === 'live' ? 'Listeler' : 'Canlı Sayfa'}
+          </button>
+        </div>
 
         {user ? (
           <button
             onClick={() => signOut(auth)}
             className="text-sm bg-red-900/50 px-4 py-2 rounded flex items-center gap-2"
           >
-            <LogOut size={16} />Çıkış Yap
+            <LogOut size={16} />
+            Çıkış Yap
           </button>
         ) : (
           <div className="flex gap-2">
@@ -146,34 +172,55 @@ export default function App() {
               onChange={(e) => setEmail(e.target.value)}
               className="bg-neutral-800 p-2 text-sm rounded w-32"
             />
+
             <input
               type="password"
               placeholder="Şifre"
               onChange={(e) => setPassword(e.target.value)}
               className="bg-neutral-800 p-2 text-sm rounded w-32"
             />
+
             <button
-              onClick={() => signInWithEmailAndPassword(auth, email, password)}
+              onClick={() =>
+                signInWithEmailAndPassword(auth, email, password)
+              }
               className="bg-blue-600 px-4 py-2 text-sm rounded flex items-center gap-1 font-bold"
             >
-              <LogIn size={16} />Giriş
+              <LogIn size={16} />
+              Giriş
             </button>
           </div>
         )}
       </header>
 
       <main className="space-y-8 w-full">
+
+        {/* METİN KUTUSU SABİT */}
         {user && (
           <div className="w-full bg-neutral-900 p-4 rounded-lg flex gap-3 items-center">
+
             <div className="flex flex-col gap-2">
-              <button onClick={() => setInputText((p) => p + '🟨')} className="text-2xl hover:bg-neutral-800 p-1 rounded">🟨</button>
-              <button onClick={() => setInputText((p) => p + '🟥')} className="text-2xl hover:bg-neutral-800 p-1 rounded">🟥</button>
+              <button
+                onClick={() => setInputText((p) => p + '🟨')}
+                className="text-2xl hover:bg-neutral-800 p-1 rounded"
+              >
+                🟨
+              </button>
+
+              <button
+                onClick={() => setInputText((p) => p + '🟥')}
+                className="text-2xl hover:bg-neutral-800 p-1 rounded"
+              >
+                🟥
+              </button>
             </div>
 
             <textarea
               value={inputText}
               onChange={(e) => setInputText(e.target.value)}
-              onKeyDown={(e) => { if (e.ctrlKey && e.key === 'Enter') handleSave(); }}
+              onKeyDown={(e) => {
+                if (e.ctrlKey && e.key === 'Enter') handleSave();
+              }}
               className="flex-grow bg-neutral-950 border border-neutral-800 rounded px-4 py-3 text-base outline-none resize-none h-24"
               placeholder="Örn: GOAL! Top ağlarda... (Ctrl+Enter ile kaydet)"
             />
@@ -187,52 +234,131 @@ export default function App() {
           </div>
         )}
 
-        <section className="w-full space-y-4">
-          {updates.map((update) => (
-            <div
-              key={update.id}
-              className="bg-neutral-900/50 p-5 w-full flex justify-between items-start gap-6"
-            >
-              <div className="flex items-start gap-4 w-full">
-                <span className="text-sm text-neutral-400 font-mono mt-1 whitespace-nowrap">
-                  [{update.timestamp}]
-                </span>
+        {/* 🔥 CANLI SAYFA */}
+        {activePage === 'live' && (
+          <section className="w-full space-y-4">
 
-                <div className="flex-1">
-                  <p className="text-lg break-words">
-                    {update.tag && (
-                      <span className={`inline-block w-40 mr-3 px-3 py-1 rounded text-sm font-bold uppercase text-center ${getTagColor(update.tag)}`}>
-                        {update.tag}
-                      </span>
-                    )}
-                    {update.text}
-                  </p>
+            {updates.map((update) => (
+              <div
+                key={update.id}
+                className="bg-neutral-900/50 p-5 w-full flex justify-between items-start gap-6"
+              >
+                <div className="flex items-start gap-4 w-full">
+
+                  <span className="text-sm text-neutral-400 font-mono mt-1 whitespace-nowrap">
+                    [{update.timestamp}]
+                  </span>
+
+                  <div className="flex-1">
+                    <p className="text-lg break-words">
+
+                      {update.tag && (
+                        <span
+                          className={`inline-block w-40 mr-3 px-3 py-1 rounded text-sm font-bold uppercase text-center ${getTagColor(update.tag)}`}
+                        >
+                          {update.tag}
+                        </span>
+                      )}
+
+                      {update.text}
+                    </p>
+                  </div>
                 </div>
+
+                {user && (
+                  <div className="flex items-center gap-2">
+
+                    <button
+                      onClick={() => {
+                        setEditId(update.id);
+                        setInputText(update.text);
+                      }}
+                      className="text-neutral-500 hover:text-yellow-400 p-2"
+                    >
+                      <Pencil size={20} />
+                    </button>
+
+                    <button
+                      onClick={() =>
+                        deleteDoc(doc(db, "updates", update.id))
+                      }
+                      className="text-neutral-500 hover:text-red-500 p-2"
+                    >
+                      <Trash2 size={20} />
+                    </button>
+                  </div>
+                )}
               </div>
+            ))}
+          </section>
+        )}
 
-              {user && (
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={() => {
-                      setEditId(update.id);
-                      setInputText(update.text);
-                    }}
-                    className="text-neutral-500 hover:text-yellow-400 p-2"
-                  >
-                    <Pencil size={20} />
-                  </button>
+        {/* 🔥 LİSTELER SAYFASI */}
+        {activePage === 'lists' && (
+          <section className="w-full overflow-x-auto">
 
-                  <button
-                    onClick={() => deleteDoc(doc(db, "updates", update.id))}
-                    className="text-neutral-500 hover:text-red-500 p-2"
-                  >
-                    <Trash2 size={20} />
-                  </button>
+            {/* SOLDAN SAĞA EN YENİ */}
+            <div className="flex gap-4 items-start min-w-max">
+
+              {updates.map((update) => (
+                <div
+                  key={update.id}
+                  className="w-[420px] min-h-[220px] bg-neutral-900 border border-neutral-800 rounded-xl p-5 flex flex-col justify-between"
+                >
+
+                  <div className="space-y-4">
+
+                    <div className="flex items-center justify-between gap-3">
+
+                      {update.tag && (
+                        <span
+                          className={`px-3 py-1 rounded text-sm font-bold uppercase text-center ${getTagColor(update.tag)}`}
+                        >
+                          {update.tag}
+                        </span>
+                      )}
+
+                      <span className="text-xs text-neutral-500">
+                        {update.timestamp}
+                      </span>
+                    </div>
+
+                    <p className="text-lg break-words leading-relaxed">
+                      {update.text}
+                    </p>
+                  </div>
+
+                  {user && (
+                    <div className="flex justify-end gap-2 mt-6">
+
+                      <button
+                        onClick={() => {
+                          setEditId(update.id);
+                          setInputText(update.text);
+                          setActivePage('live');
+                        }}
+                        className="text-neutral-500 hover:text-yellow-400 p-2"
+                      >
+                        <Pencil size={20} />
+                      </button>
+
+                      <button
+                        onClick={() =>
+                          deleteDoc(doc(db, "updates", update.id))
+                        }
+                        className="text-neutral-500 hover:text-red-500 p-2"
+                      >
+                        <Trash2 size={20} />
+                      </button>
+                    </div>
+                  )}
                 </div>
-              )}
+              ))}
+
             </div>
-          ))}
-        </section>
+          </section>
+        )}
+
       </main>
     </div>
   );
