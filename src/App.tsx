@@ -159,6 +159,11 @@ export default function App() {
       <main className="space-y-8 w-full">
         {user && (
           <div className="w-full bg-neutral-900 p-4 rounded-lg flex gap-3 items-center">
+            <div className="flex flex-col gap-2">
+              <button onClick={() => setInputText((p) => p + '🟨')} className="text-2xl hover:bg-neutral-800 p-1 rounded">🟨</button>
+              <button onClick={() => setInputText((p) => p + '🟥')} className="text-2xl hover:bg-neutral-800 p-1 rounded">🟥</button>
+            </div>
+
             <textarea
               value={inputText}
               onChange={(e) => setInputText(e.target.value)}
