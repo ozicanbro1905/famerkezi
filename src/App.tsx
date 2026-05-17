@@ -95,7 +95,7 @@ export default function App() {
       { phrase: 'penaltı kazandı.', tag: 'PENALTI', remove: false },
       { phrase: 'penaltıyı kaçırdı.', tag: 'PENALTI KAÇTI', remove: false },
       { phrase: 'SON DAKİKA |', tag: 'SON DAKİKA', remove: true },
-      { phrase: 'durduruldu.', tag: 'DURDURULDU', remove: true },
+      { phrase: 'durduruldu.', tag: 'DURDURULDU', remove: false },
       { phrase: 'VAR', tag: 'VAR', remove: true },
     ];
 
