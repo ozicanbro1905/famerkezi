@@ -48,6 +48,7 @@ export default function App() {
       case 'MAÇ SONUCU': return 'bg-purple-950/50 text-purple-300 border-purple-900';
       case 'KIRMIZI KART': return 'bg-red-950/50 text-red-300 border-red-900';
       case 'PENALTI KAÇTI': return 'bg-orange-950/50 text-orange-300 border-orange-900';
+      case 'SON DAKİKA': return 'bg-white-950/50 text-black-300 border-gray-900';
       default: return 'bg-neutral-800 text-neutral-300 border-neutral-700';
     }
   };
@@ -92,6 +93,7 @@ export default function App() {
       { phrase: '🟥', tag: 'KIRMIZI KART', remove: true },
       { phrase: 'penaltı kazandı.', tag: 'PENALTI', remove: false },
       { phrase: 'penaltıyı kaçırdı.', tag: 'PENALTI KAÇTI', remove: false },
+      { phrase: 'SON DAKİKA |', tag: 'SON DAKİKA', remove: true },
       { phrase: 'VAR', tag: 'VAR', remove: true },
     ];
 
