@@ -34,8 +34,14 @@ export default function App() {
   }, []);
 
   const handleLogin = async () => {
-    try { await signInWithEmailAndPassword(auth, email, password); }
-    catch (e) { alert("Giriş başarısız!"); }
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
+      alert("Giriş başarılı!");
+    } catch (e: any) {
+      // Hata mesajını daha detaylı görelim
+      console.error("Giriş hatası:", e.code, e.message);
+      alert("Giriş başarısız: " + e.message);
+    }
   };
 
   const handleSave = async () => {
