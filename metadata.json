@@ -1,0 +1,6 @@
+{
+  "name": "Canlı Maç Anlatımı",
+  "description": "Maç anlarını canlı takip etmek ve kaydetmek için vidiprinter tarzı anlatım uygulaması.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
