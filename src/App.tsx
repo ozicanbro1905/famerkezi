@@ -49,6 +49,8 @@ export default function App() {
   const [activePage, setActivePage] = useState<'live' | 'lists'>('live');
 
   useEffect(() => {
+    setEditId(null);
+    setInputText('');
 
     onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
@@ -93,7 +95,7 @@ export default function App() {
       unsubscribeLists();
     };
 
-  }, []);
+  }, [activePage]);
 
   const getTagColor = (tag: string) => {
 
@@ -158,75 +160,34 @@ export default function App() {
   };
 
   const handleSave = async () => {
-
     if (inputText.trim() === '' || !user) return;
-
-    // 🔥 DÜZENLEME MODU
-    if (editId) {
-
-      const collectionName =
-        activePage === 'live'
-          ? 'updates'
-          : 'lists';
-
-      await updateDoc(
-        doc(db, collectionName, editId),
-        {
-          text: inputText
-        }
-      );
-
-      setEditId(null);
-      setInputText('');
-
-      return;
-    }
 
     let tag: string | undefined;
     let cleanText = inputText;
 
     const triggers = [
-
       { phrase: 'maçı başladı.', tag: 'MAÇ BAŞLADI', remove: true },
-
       { phrase: '(İLK YARI SONUCU)', tag: 'İLK YARI SONUCU', remove: true },
-
       { phrase: 'İLK YARI SONUCU', tag: 'İLK YARI SONUCU', remove: true },
-
       { phrase: '(2. YARI BAŞLADI)', tag: '2. YARI BAŞLADI', remove: true },
-
       { phrase: '2. YARI BAŞLADI', tag: '2. YARI BAŞLADI', remove: true },
-
       { phrase: '(MAÇ SONUCU)', tag: 'MAÇ SONUCU', remove: true },
-
       { phrase: 'MAÇ SONUCU', tag: 'MAÇ SONUCU', remove: true },
-
       { phrase: 'GOAL!', tag: 'GOAL', remove: true },
-
       { phrase: '🟥', tag: 'KIRMIZI KART', remove: true },
-
       { phrase: 'penaltı kazandı.', tag: 'PENALTI', remove: false },
-
       { phrase: 'penaltıyı kaçırdı.', tag: 'PENALTI KAÇTI', remove: false },
-
       { phrase: 'SON DAKİKA |', tag: 'SON DAKİKA', remove: true },
-
       { phrase: 'durduruldu.', tag: 'DURDURULDU', remove: false },
-
       { phrase: 'VAR', tag: 'VAR', remove: true },
-
     ];
 
     for (const trigger of triggers) {
-
       if (inputText.includes(trigger.phrase)) {
-
         tag = trigger.tag;
-
         if (trigger.remove) {
           cleanText = inputText.replace(trigger.phrase, '').trim();
         }
-
         break;
       }
     }
@@ -240,21 +201,13 @@ export default function App() {
         second: '2-digit',
       })}`;
 
-    const collectionName =
-      activePage === 'live'
-        ? 'updates'
-        : 'lists';
+    const collectionName = activePage === 'live' ? 'updates' : 'lists';
 
     await addDoc(collection(db, collectionName), {
-
       text: cleanText,
-
       timestamp,
-
       tag: tag || null,
-
       createdAt: Date.now()
-
     });
 
     setInputText('');
