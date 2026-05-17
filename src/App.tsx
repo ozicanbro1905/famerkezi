@@ -49,7 +49,7 @@ export default function App() {
       case 'KIRMIZI KART': return 'bg-red-950/50 text-red-300 border-red-900';
       case 'PENALTI KAÇTI': return 'bg-orange-950/50 text-orange-300 border-orange-900';
       case 'SON DAKİKA': return 'bg-black-950/50 text-white-300 border-gray-900';
-      case 'DURDURULDU': return 'bg-white-950/50 text-black-300 border-gray-900';
+      case 'DURDURULDU': return 'bg-black-950/50 text-cyan-300 border-gray-900';
       default: return 'bg-neutral-800 text-neutral-300 border-neutral-700';
     }
   };
