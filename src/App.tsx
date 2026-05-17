@@ -101,26 +101,32 @@ export default function App() {
 
       <main className="space-y-6">
         {user && (
-          <div className="max-w-3xl mx-auto bg-neutral-900 border border-neutral-800 p-4 rounded-lg flex gap-2">
-            <textarea value={inputText} onChange={(e) => setInputText(e.target.value)} className="flex-grow bg-neutral-950 border border-neutral-800 rounded px-3 py-2 text-sm outline-none" placeholder="Örn: GOAL! Top ağlarda..." />
-            <button onClick={handleSave} className="bg-white text-black px-4 py-2 rounded text-sm font-bold">Kaydet</button>
+          <div className="max-w-3xl mx-auto bg-neutral-900 border border-neutral-800 p-4 rounded-lg flex gap-2 items-center">
+            <div className="flex flex-col gap-2">
+              <button onClick={() => setInputText((prev) => prev + '🟨')} className="text-xl hover:bg-neutral-800 p-1 rounded">🟨</button>
+              <button onClick={() => setInputText((prev) => prev + '🟥')} className="text-xl hover:bg-neutral-800 p-1 rounded">🟥</button>
+            </div>
+            <textarea
+              value={inputText}
+              onChange={(e) => setInputText(e.target.value)}
+              onKeyDown={(e) => { if (e.ctrlKey && e.key === 'Enter') handleSave(); }}
+              className="flex-grow bg-neutral-950 border border-neutral-800 rounded px-3 py-2 text-sm outline-none resize-none h-20"
+              placeholder="Örn: GOAL! Top ağlarda... (Ctrl+Enter ile kaydet)"
+            />
+            <button onClick={handleSave} className="bg-white text-black px-4 py-2 rounded text-sm font-bold self-start">Kaydet</button>
           </div>
         )}
 
         <section className="max-w-3xl mx-auto space-y-3">
           {updates.map((update) => {
-            // Zamanı güvenli bir şekilde işle
-            const timeDisplay = update.timestamp && update.timestamp.includes(' ')
-              ? update.timestamp.split(' ')[1] // 17:53:25 kısmını alır
-              : update.timestamp;
-
+            const timeDisplay = update.timestamp && update.timestamp.includes(' ') ? update.timestamp.split(' ')[1] : update.timestamp;
             return (
               <div key={update.id} className="bg-neutral-900 border-l-4 border-neutral-700 p-4 rounded-r-lg flex justify-between items-start gap-4">
                 <div className="flex items-start gap-3">
-                  <span className="text-xs text-neutral-500 font-mono mt-1">[{timeDisplay}]</span>
+                  <span className="text-xs text-neutral-500 font-mono mt-1 w-16 text-right">[{timeDisplay}]</span>
                   <p className="text-sm">
                     {update.tag && (
-                      <span className={`inline-block mr-2 px-2 py-0.5 rounded text-[10px] font-bold uppercase ${getTagColor(update.tag)}`}>
+                      <span className={`inline-block mr-2 px-2 py-0.5 rounded text-[10px] font-bold uppercase w-32 text-center ${getTagColor(update.tag)}`}>
                         {update.tag}
                       </span>
                     )}
@@ -128,10 +134,7 @@ export default function App() {
                   </p>
                 </div>
                 {user && (
-                  <button
-                    onClick={() => deleteDoc(doc(db, "updates", update.id))}
-                    className="text-neutral-600 hover:text-red-500"
-                  >
+                  <button onClick={() => deleteDoc(doc(db, "updates", update.id))} className="text-neutral-600 hover:text-red-500">
                     <Trash2 size={16} />
                   </button>
                 )}
