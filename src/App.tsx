@@ -168,14 +168,16 @@ export default function App() {
                   [{update.timestamp}]
                 </span>
 
-                <p className="text-sm w-full break-words">
-                  {update.tag && (
-                    <span className={`inline-block mr-2 px-2 py-0.5 rounded text-[10px] font-bold uppercase w-32 text-center ${getTagColor(update.tag)}`}>
-                      {update.tag}
-                    </span>
-                  )}
-                  {update.text}
-                </p>
+                <div className="flex-1">
+                  <p className="text-sm break-words">
+                    {update.tag && (
+                      <span className={`inline-block mr-2 px-2 py-0.5 rounded text-[10px] font-bold uppercase w-32 text-center ${getTagColor(update.tag)}`}>
+                        {update.tag}
+                      </span>
+                    )}
+                    {update.text}
+                  </p>
+                </div>
               </div>
 
               {user && (
