@@ -111,7 +111,9 @@ export default function App() {
           {updates.map((update) => (
             <div key={update.id} className="bg-neutral-900 border-l-4 border-neutral-700 p-4 rounded-r-lg flex justify-between items-start gap-4">
               <div className="flex items-start gap-3">
-                <span className="text-xs text-neutral-500 font-mono mt-1">[{update.timestamp.split(',')[1].trim()}]</span>
+                {/* Güvenli zaman okuma: Eğer hata varsa sadece saati boş bırak */}
+                <span className="text-xs text-neutral-500 font-mono mt-1">[{update.timestamp && update.timestamp.includes(',') ? update.timestamp.split(',')[1]?.trim() : update.timestamp}]
+                </span>
                 <p className="text-sm">
                   {update.tag && (
                     <span className={`inline-block mr-2 px-2 py-0.5 rounded text-[10px] font-bold uppercase ${getTagColor(update.tag)}`}>
