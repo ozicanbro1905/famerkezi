@@ -18,13 +18,12 @@ type MatchUpdate = {
 };
 
 export default function App() {
-  const [updates, setUpdates] = useState<MatchUpdate[]>([]);
-  const[inputText, setInputText] = useState('');
+  const[updates, setUpdates] = useState<MatchUpdate[]>([]);
+  const [inputText, setInputText] = useState('');
   const [user, setUser] = useState<User | null>(null);
   const[email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
-  // 1. Auth durumunu takip et
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
@@ -32,7 +31,6 @@ export default function App() {
     return () => unsubscribe();
   },[]);
 
-  // 2. Verileri çek
   useEffect(() => {
     const q = query(collection(db, "updates"), orderBy("createdAt", "desc"));
     const unsubscribe = onSnapshot(q, (snapshot) => {
