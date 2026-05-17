@@ -106,6 +106,7 @@ export default function App() {
       case 'GOL KRALLIĞI': return 'bg-rose-950/50 text-rose-300 border-rose-900';
       case 'ASİST KRALLIĞI': return 'bg-sky-950/50 text-sky-300 border-sky-900';
       case 'PERFORMANSLAR': return 'bg-fuchsia-950/50 text-fuchsia-300 border-fuchsia-900';
+      case 'HAFTANIN TAKIMI': return 'bg-emerald-950/50 text-emerald-300 border-emerald-900';
 
       default: return 'bg-neutral-800 text-neutral-300 border-neutral-700';
     }
@@ -159,6 +160,7 @@ export default function App() {
           { phrase: 'Gol Krallığı', tag: 'GOL KRALLIĞI', remove: false },
           { phrase: 'Asist Krallığı', tag: 'ASİST KRALLIĞI', remove: false },
           { phrase: 'Günün dikkat çeken performansları:', tag: 'PERFORMANSLAR', remove: false },
+          { phrase: "en iyi 11'i:", tag: 'HAFTANIN TAKIMI', remove: false },
         ];
       }
 
