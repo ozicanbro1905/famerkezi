@@ -157,7 +157,6 @@ export default function App() {
           </div>
         )}
 
-        {/* Kaydedilen maç verileri listesi - Genişliği w-full yapıldı, sınırları kaldırıldı */}
         <section className="w-full space-y-4">
           {updates.map((update) => (
             <div
@@ -165,36 +164,35 @@ export default function App() {
               className="bg-neutral-900/50 p-5 w-full flex justify-between items-start gap-6"
             >
               <div className="flex items-start gap-4 w-full">
-                {/* whitespace-nowrap ile tarih ve saat üst üste binmesi önlendi, boyutu büyütüldü */}
                 <span className="text-sm text-neutral-400 font-mono mt-1 whitespace-nowrap">
                   [{update.timestamp}]
                 </span>
 
                 <div className="flex-1">
-                  {/* Ana metin boyutu text-sm'den text-lg'ye çıkarıldı */}
                   <p className="text-lg break-words">
                     {update.tag && (
-                      <span className={`inline-block mr-3 px-3 py-1 rounded text-sm font-bold uppercase text-center ${getTagColor(update.tag)}`}>
-                        {update.tag}
-                      </span>
+                      {/* Simetri için buraya "w-40" sınıfı eklendi */ }
+                      < span className={`inline-block w-40 mr-3 px-3 py-1 rounded text-sm font-bold uppercase text-center ${getTagColor(update.tag)}`}>
+                    {update.tag}
+                  </span>
                     )}
-                    {update.text}
-                  </p>
-                </div>
+                  {update.text}
+                </p>
               </div>
-
-              {user && (
-                <button
-                  onClick={() => deleteDoc(doc(db, "updates", update.id))}
-                  className="text-neutral-500 hover:text-red-500 p-2"
-                >
-                  <Trash2 size={20} />
-                </button>
-              )}
             </div>
+
+              { user && (
+              <button
+                onClick={() => deleteDoc(doc(db, "updates", update.id))}
+                className="text-neutral-500 hover:text-red-500 p-2"
+              >
+                <Trash2 size={20} />
+              </button>
+            )}
+        </div>
           ))}
-        </section>
-      </main>
-    </div>
+      </section>
+    </main>
+    </div >
   );
 }
