@@ -1,6 +1,6 @@
 /**
  * @license
- * SPDX-License-Identifier: Apache-2.0
+ * SPDX-License-Identifier: Apache-2.0 
  */
 
 import { useState, useEffect } from 'react';
@@ -97,16 +97,16 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-neutral-950 text-neutral-100 p-6 font-sans">
-      <header className="max-w-3xl mx-auto mb-8 border-b border-neutral-800 pb-4 flex justify-between items-center">
-        <h1 className="text-2xl font-bold">Canlı Maç Anlatımı</h1>
+    <div className="min-h-screen bg-black text-white p-4 font-sans">
+      <header className="flex justify-between items-center mb-8 w-full">
+        <h1 className="text-3xl font-bold">Canlı Maç Anlatımı</h1>
 
         {user ? (
           <button
             onClick={() => signOut(auth)}
-            className="text-xs bg-red-900/50 px-3 py-1 rounded flex items-center gap-1"
+            className="text-sm bg-red-900/50 px-4 py-2 rounded flex items-center gap-2"
           >
-            <LogOut size={14} />Çıkış Yap
+            <LogOut size={16} />Çıkış Yap
           </button>
         ) : (
           <div className="flex gap-2">
@@ -114,64 +114,67 @@ export default function App() {
               type="email"
               placeholder="Email"
               onChange={(e) => setEmail(e.target.value)}
-              className="bg-neutral-800 p-1 text-xs rounded w-24"
+              className="bg-neutral-800 p-2 text-sm rounded w-32"
             />
             <input
               type="password"
               placeholder="Şifre"
               onChange={(e) => setPassword(e.target.value)}
-              className="bg-neutral-800 p-1 text-xs rounded w-24"
+              className="bg-neutral-800 p-2 text-sm rounded w-32"
             />
             <button
               onClick={() => signInWithEmailAndPassword(auth, email, password)}
-              className="bg-blue-600 px-3 py-1 text-xs rounded flex items-center gap-1"
+              className="bg-blue-600 px-4 py-2 text-sm rounded flex items-center gap-1 font-bold"
             >
-              <LogIn size={14} />Giriş
+              <LogIn size={16} />Giriş
             </button>
           </div>
         )}
       </header>
 
-      <main className="space-y-6">
+      <main className="space-y-8 w-full">
         {user && (
-          <div className="max-w-3xl mx-auto bg-neutral-900 border border-neutral-800 p-4 rounded-lg flex gap-2 items-center">
+          <div className="w-full bg-neutral-900 p-4 rounded-lg flex gap-3 items-center">
             <div className="flex flex-col gap-2">
-              <button onClick={() => setInputText((p) => p + '🟨')} className="text-xl hover:bg-neutral-800 p-1 rounded">🟨</button>
-              <button onClick={() => setInputText((p) => p + '🟥')} className="text-xl hover:bg-neutral-800 p-1 rounded">🟥</button>
+              <button onClick={() => setInputText((p) => p + '🟨')} className="text-2xl hover:bg-neutral-800 p-1 rounded">🟨</button>
+              <button onClick={() => setInputText((p) => p + '🟥')} className="text-2xl hover:bg-neutral-800 p-1 rounded">🟥</button>
             </div>
 
             <textarea
               value={inputText}
               onChange={(e) => setInputText(e.target.value)}
               onKeyDown={(e) => { if (e.ctrlKey && e.key === 'Enter') handleSave(); }}
-              className="flex-grow bg-neutral-950 border border-neutral-800 rounded px-3 py-2 text-sm outline-none resize-none h-20"
+              className="flex-grow bg-neutral-950 border border-neutral-800 rounded px-4 py-3 text-base outline-none resize-none h-24"
               placeholder="Örn: GOAL! Top ağlarda... (Ctrl+Enter ile kaydet)"
             />
 
             <button
               onClick={handleSave}
-              className="bg-white text-black px-4 py-2 rounded text-sm font-bold self-start"
+              className="bg-white text-black px-6 py-3 rounded text-base font-bold self-start hover:bg-neutral-200"
             >
               Kaydet
             </button>
           </div>
         )}
 
-        <section className="max-w-3xl mx-auto space-y-3">
+        {/* Kaydedilen maç verileri listesi - Genişliği w-full yapıldı, sınırları kaldırıldı */}
+        <section className="w-full space-y-4">
           {updates.map((update) => (
             <div
               key={update.id}
-              className="bg-neutral-900 border-l-4 border-neutral-700 p-4 rounded-r-lg flex justify-between items-start gap-4"
+              className="bg-neutral-900/50 p-5 w-full flex justify-between items-start gap-6"
             >
-              <div className="flex items-start gap-3 w-full">
-                <span className="text-xs text-neutral-500 font-mono mt-1 w-28 text-right">
+              <div className="flex items-start gap-4 w-full">
+                {/* whitespace-nowrap ile tarih ve saat üst üste binmesi önlendi, boyutu büyütüldü */}
+                <span className="text-sm text-neutral-400 font-mono mt-1 whitespace-nowrap">
                   [{update.timestamp}]
                 </span>
 
                 <div className="flex-1">
-                  <p className="text-sm break-words">
+                  {/* Ana metin boyutu text-sm'den text-lg'ye çıkarıldı */}
+                  <p className="text-lg break-words">
                     {update.tag && (
-                      <span className={`inline-block mr-2 px-2 py-0.5 rounded text-[10px] font-bold uppercase w-32 text-center ${getTagColor(update.tag)}`}>
+                      <span className={`inline-block mr-3 px-3 py-1 rounded text-sm font-bold uppercase text-center ${getTagColor(update.tag)}`}>
                         {update.tag}
                       </span>
                     )}
@@ -183,9 +186,9 @@ export default function App() {
               {user && (
                 <button
                   onClick={() => deleteDoc(doc(db, "updates", update.id))}
-                  className="text-neutral-600 hover:text-red-500"
+                  className="text-neutral-500 hover:text-red-500 p-2"
                 >
-                  <Trash2 size={16} />
+                  <Trash2 size={20} />
                 </button>
               )}
             </div>
