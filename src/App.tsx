@@ -500,11 +500,9 @@ export default function App() {
                       </span>
 
                     </div>
-
-                    <p className="text-lg break-words leading-relaxed">
+                    <p className="text-lg leading-relaxed whitespace-pre-wrap break-words">
                       {update.text}
                     </p>
-
                   </div>
 
                   {user && (
